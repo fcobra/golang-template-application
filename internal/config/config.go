@@ -3,8 +3,6 @@ package config
 import (
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
@@ -79,13 +77,6 @@ func MustLoad(configPath string) *Config {
 
 	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
 		panic(fmt.Sprintf("cannot read config: %s", err))
-	}
-
-	localConfigPath := strings.TrimSuffix(configPath, filepath.Ext(configPath)) + ".local.yaml"
-	if _, err := os.Stat(localConfigPath); err == nil {
-		if err := cleanenv.ReadConfig(localConfigPath, &cfg); err != nil {
-			panic(fmt.Sprintf("cannot read local config: %s", err))
-		}
 	}
 
 	if err := cleanenv.ReadEnv(&cfg); err != nil {
