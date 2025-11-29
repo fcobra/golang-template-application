@@ -1,0 +1,119 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16.2-alpine
+    container_name: base_app_postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app_db}
+      POSTGRES_USER: ${POSTGRES_USER:-app_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-app_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-app_user} -d ${POSTGRES_DB:-app_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pushgateway:
+    image: prom/pushgateway:v1.8.0
+    container_name: prometheus_pushgateway
+    ports:
+      - "9091:9091"
+
+  prometheus:
+    image: prom/prometheus:v2.37.0
+    container_name: prometheus_metrics
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  grafana:
+    image: grafana/grafana-oss:9.2.0
+    container_name: grafana_dashboards
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
+  elasticsearch:
+    image: elasticsearch:8.5.0 # Original: docker.elastic.co/elasticsearch/elasticsearch:8.5.0
+    platform: linux/arm64
+    container_name: elasticsearch_db
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false # For development only
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+
+  kibana:
+    image: kibana:8.5.0 # Original: docker.elastic.co/kibana/kibana:8.5.0
+    platform: linux/arm64
+    container_name: kibana_logs
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+
+  filebeat:
+    image: elastic/filebeat:8.5.0 # Original: docker.elastic.co/beats/filebeat:8.5.0
+    platform: linux/amd64
+    container_name: filebeat_shipper
+    user: root # To access docker logs
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - elasticsearch
+
+  glitchtip:
+    image: glitchtip/glitchtip:latest
+    container_name: base_app_glitchtip
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgres://app_user:app_password@postgres:5432/glitchtip_db
+      - SECRET_KEY=a-secret-key-change-me # Change in a real environment
+      - ENABLE_OPEN_USER_REGISTRATION=true
+      # Creates a default organization and team on startup
+      - GLITCHTIP_CREATE_DEFAULT_ORGANIZATION=Default
+      - GLITCHTIP_CREATE_DEFAULT_TEAM=Default
+      # Creates a default project on startup
+      - GLITCHTIP_CREATE_DEFAULT_PROJECT=BaseApp
+    # The command runs migrations and starts the server
+    command: >
+      sh -c "
+        ./manage.py migrate &&
+        ./manage.py runserver 0.0.0.0:8000
+      "
+
+volumes:
+  postgres_data:
+  elasticsearch_data:

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base App Frontend</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/vue@3"></script>
+</head>
+<body>
+
+<div id="app" class="container">
+    <div v-if="!isReady" class="loading">Loading UI...</div>
+    <div v-else>
+        <h1>Base App Frontend</h1>
+
+        <!-- Navigation -->
+        <nav class="main-nav">
+            <a href="#/">Home</a>
+        <a v-if="user" href="#/catalog">Catalog</a>
+    </nav>
+
+    <!-- Dynamic Component Rendering -->
+    <div v-if="isReady">
+        <component :is="currentComponent" :app-state="this"></component>
+    </div>
+    <div v-else class="loading">
+        Loading UI...
+    </div>
+
+    <!-- Global Messages -->
+    <div v-if="message" class="message" :class="messageType">
+        {{ message }}
+    </div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

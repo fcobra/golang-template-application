@@ -1,0 +1,50 @@
+# This file is for local overrides. It's in .gitignore by default.
+# It demonstrates how to override settings from the base config.yaml for local development.
+
+# --- HTTP Server Configuration ---
+http:
+  host: "localhost"
+  port: "8080"
+
+# --- Authentication Configuration ---
+auth:
+  provider: "inmemory" # "inmemory" or "postgres"
+
+# --- Logger Configuration ---
+logger:
+  enabled: true
+  level: "debug" # debug, info, warn, error
+  destination: "stdout" # "stdout" or path to a file like "/var/log/app.log"
+
+# --- PostgreSQL Database Configuration ---
+postgres:
+  host: "localhost"
+  port: "5432"
+  user: "app_user"
+  password: "app_password"
+  dbname: "app_db"
+  sslmode: "disable"
+
+# --- Redis Cache Configuration ---
+redis:
+  enabled: true
+  host: "localhost"
+  port: "6379"
+  password: ""
+  db: 0
+
+# --- Prometheus Pushgateway Configuration ---
+pushgateway:
+  enabled: true
+  url: "http://localhost:9091"
+
+# --- Sentry/GlitchTip Error Tracking Configuration ---
+sentry:
+  enabled: true
+  # Get DSN from GlitchTip UI: http://localhost:8000/
+  # Go to Projects -> BaseApp -> Settings -> Client Keys (DSN)
+  dsn: "http://http://a6befd50e5b7451b82ea74300c984522@localhost:8000/1" # Replace with your actual DSN
+
+# --- Kibana Configuration (for reference, logging is to stdout) ---
+kibana:
+  url: "http://localhost:5601"

@@ -1,0 +1,17 @@
+<div class="card">
+    <h2>User Authentication</h2>
+    <p v-if="appState.currentPage === 'catalog'" class="message error">
+        Access to the catalog is for authorized users only. Please log in.
+    </p>
+    <form @submit.prevent="appState.login">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" v-model="appState.auth.email" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" v-model="appState.auth.password" required>
+        </div>
+        <button type="submit">Login</button>
+    </form>
+</div>

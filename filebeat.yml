@@ -1,0 +1,25 @@
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+      hints.default_config:
+        type: container
+        paths:
+          - /var/lib/docker/containers/${data.container.id}/*.log
+
+processors:
+  - add_docker_metadata:
+      host: "unix:///var/run/docker.sock"
+
+  # If the log line is JSON, decode it and use the fields as the basis of the event.
+  - decode_json_fields:
+      fields: ["message"]
+      target: "" # Store decoded fields at the root of the event
+      overwrite_keys: true
+
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+  # You can set the index name pattern here if you want
+  # index: "filebeat-%{[agent.version]}-%{[input.type]}-%{+yyyy.MM.dd}"
+
+logging.level: info

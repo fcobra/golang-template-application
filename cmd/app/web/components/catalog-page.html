@@ -1,0 +1,12 @@
+<div class="card">
+    <h2>Catalog</h2>
+    <div v-if="appState.catalog.loading" class="loading">Loading...</div>
+    <div v-else-if="appState.catalog.error" class="message error">{{ appState.catalog.error }}</div>
+    <ul v-else class="catalog-list">
+        <li v-for="item in appState.catalog.items" :key="item.id" :class="{ disabled: item.disabled }">
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.description }}</p>
+            <small>Status: {{ item.disabled ? 'Disabled' : 'Active' }}</small>
+        </li>
+    </ul>
+</div>

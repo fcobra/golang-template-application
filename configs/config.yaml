@@ -1,0 +1,39 @@
+http:
+  host: "0.0.0.0"
+  port: "8080"
+
+auth:
+  provider: "inmemory" # "inmemory" or "postgres"
+
+logger:
+  enabled: true
+  level: "info" # debug, info, warn, error
+  destination: "stdout" # "stdout" or path to a file like "/var/log/app.log"
+
+postgres:
+  host: "localhost"
+  port: "5432"
+  user: "app_user"
+  password: "app_password"
+  dbname: "app_db"
+  sslmode: "disable"
+
+redis:
+  enabled: true
+  host: "localhost"
+  port: "6379"
+  password: ""
+  db: 0
+
+pushgateway:
+  enabled: true
+  url: "http://localhost:9091"
+
+sentry:
+  enabled: true
+  # Get DSN from GlitchTip UI: http://localhost:8000/
+  # Go to Projects -> BaseApp -> Settings -> Client Keys (DSN)
+  dsn: "http://placeholder@localhost:8000/1"
+
+kibana: # Just for reference, logging is to stdout
+  url: "http://localhost:5601"

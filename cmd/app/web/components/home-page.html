@@ -1,0 +1,21 @@
+<div>
+    <div class="card">
+        <h2>Welcome, {{ appState.user.email }}</h2>
+        <p>You are logged in.</p>
+        <button @click="appState.logout">Logout</button>
+    </div>
+    <div class="card">
+        <h2>Post Data</h2>
+        <form @submit.prevent="appState.postData">
+            <div class="form-group">
+                <label for="key">Key:</label>
+                <input type="text" id="key" v-model="appState.data.key" required>
+            </div>
+            <div class="form-group">
+                <label for="value">Value:</label>
+                <input type="text" id="value" v-model="appState.data.value" required>
+            </div>
+            <button type="submit">Post Data</button>
+        </form>
+    </div>
+</div>
